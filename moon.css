@@ -1,0 +1,60 @@
+*{
+    margin:0px;
+    padding:0px;
+    box-sizing: border-box;
+}
+html,body{
+    width:100vw;
+    height:100% ;
+    background-color: black;
+}
+body{
+    background: radial-gradient(circle at center,rgb(255, 255, 255));
+    display:flex;
+    align-items: center;
+    justify-content: center;
+}
+.moon{
+    border-radius: 50%;
+    width:500px;
+    height:500px;
+    background:url(https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/FullMoon2010.jpg/640px-FullMoon2010.jpg);
+    background-repeat: repeat-x;
+    background-size: cover;
+    animation: moon-rotation 30s linear infinite;
+    box-shadow:inset 60px 0 40px black,
+               inset 160px 0 60px rgba(0,0,0,.9),
+               inset -160px 0 60px rgba(248,248,213,0.2);
+
+}
+.moon:before{
+    content:"";
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    border-radius: 50%;
+    width:495px;
+    height:495px;
+    box-shadow: -60px 0px 50px black;
+}
+@keyframes moon-rotation{
+    from{background-position:-500px center ;}
+    to{background-position:496px center ; }
+}
+@media screen and (max-width:500px)
+{
+    body{
+        background:radial-gradient(circle at center ,rgb(0, 0, 0)) ;
+    }
+    .moon{
+        width:250px;
+        height:250px;
+
+    }
+    .moon:before{
+        width:245px;
+        height:245px;
+        box-shadow:-60px 0 50px rgb(239, 236, 236);
+    }
+}
