@@ -1,0 +1,58 @@
+body {
+    background: url(https://images.pexels.com/photos/1257860/pexels-photo-1257860.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500) center no-repeat;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.planet {
+    width: 15em; /* Adjusted for 1080px */
+    height: 15em; /* Adjusted for 1080px */
+    background: url(https://images.pexels.com/photos/87651/earth-blue-planet-globe-planet-87651.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1);
+    background-size: cover;
+    box-shadow: inset -3em -3em 3em #000, -0.5em -0.5em 1em #f0d08b;
+    position: relative;
+    animation: rotate 10s linear infinite;
+    border-radius: 50%;
+}
+
+.moon {
+    background: url(https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/FullMoon2010.jpg/1200px-FullMoon2010.jpg);
+    background-size: cover;
+    box-shadow: inset -1.5em -1.5em -1.5em #000, -0.2em -0.2em -0.5em #ccc;
+    width: 4em; /* Adjusted for 1080px */
+    height: 4em; /* Adjusted for 1080px */
+    position: absolute;
+    left: -8em; /* Adjusted orbit path */
+    top: 50%;
+    transform: translateY(-50%);
+    animation: rotate 5s linear infinite, orbit 25s infinite ease-in-out; /* Adjusted timing for smoother motion */
+    z-index: 1;
+    border-radius: 50%;
+}
+
+@keyframes rotate {
+    to {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes orbit {
+    49% {
+        z-index: 1;
+    }
+    50% {
+        left: 18em; /* Adjusted orbit path */
+        z-index: -1;
+    }
+    99% {
+        z-index: -1;
+    }
+    100% {
+        left: -8em; /* Adjusted orbit path */
+        z-index: 1;
+    }
+}
