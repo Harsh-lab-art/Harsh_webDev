@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Floating Circles</title>
+    <link rel="stylesheet" href="loop.css">
+</head>
+<body>
+    <div class="container">
+        <script>
+            for (let i = 0; i < 21; i++) {
+                let circle = document.createElement('div');
+                circle.className = 'circle';
+                circle.style.setProperty('--i', i);
+                circle.style.setProperty('--delay', Math.random() * 2 + 's');
+                circle.style.setProperty('--speed', Math.random() * 3 + 2 + 's');
+                circle.style.setProperty('--hue', i * 18);
+                document.querySelector('.container').appendChild(circle);
+            }
+        </script>
+    </div>
+    <style>
+        .container{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            position:absolute;
+            top:20%;
+            height:90%;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+        }
+
+        body{
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:black;
+            overflow:hidden;
+        }
+
+        .circle{
+            position:absolute;
+            background:transparent;
+            width:calc(var(--i) * 2.5vmin);
+            aspect-ratio:1;
+            border-radius:50%;
+            border:3px solid hsl(var(--hue), 100%, 50%);
+            transform-style:preserve-3d;
+            transform:rotateX(70deg) rotateY(var(--i) * 18deg) translateZ(50px);
+            animation:animate var(--speed) ease-in-out var(--delay) infinite;
+            box-shadow:0 0 15px hsl(var(--hue), 100%, 50%);
+        }
+
+        @keyframes animate{
+            0%, 100%{
+                transform:rotateX(70deg) rotateY(var(--i) * 18deg) translateZ(50px) translateY(0);
+                filter:hue-rotate(0);
+            }
+            50%{
+                transform:rotateX(70deg) rotateY(var(--i) * 18deg) translateZ(50px) translateY(-50vmin);
+                filter:hue-rotate(360deg);
+            }
+        }
+    </style>
+</body>
+</html>
