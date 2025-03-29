@@ -1,5 +1,7 @@
 # my web skills
 ## here I have shown all my web Development works
+![image](https://github.com/user-attachments/assets/3f2870e4-ef68-4aeb-af3f-66b203123fa2)
+
 
 ![image](https://github.com/user-attachments/assets/0c2b8656-768d-491b-afed-db3ef3a4d716)
 
