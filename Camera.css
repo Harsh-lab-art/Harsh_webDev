@@ -1,0 +1,277 @@
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #bca5a5;
+}
+#iphone{
+    width: 662px;
+    height: 500px;
+    margin:auto;
+    position: relative;
+    border-top-left-radius: 106px;
+    border-top-right-radius: 106px;
+    border: 1px solid #000000;
+    border-bottom: 0;
+    background-image: linear-gradient(45deg,#717171,#717171);
+    box-shadow:
+        inset 0px 0px 0px 1px #919797,
+        inset 0px 0px 0px 2px #c8e2fd,
+        inset 0px 0px 0px 1px #b5bcbc,
+        inset 0px 0px 0px 6px #0d0c08,
+        inset 0px 0px 0px 8px #707c85;
+}
+
+
+#iphone::before,
+#iphone::after{
+    content: '';
+    display: block;
+    width: 10px;
+    height: 6px;
+    position: absolute;
+    left: 132px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+#iphone::after{
+    left:0;
+    top: 135px;
+    width: 6px;
+    height: 10px;
+}
+.camera{
+    background-image: linear-gradient(45deg,#3b3b3b,#3b3b3b,#3b3b3b);
+    width: 330px;
+    height: 330px;
+    position: absolute;
+    top: 38px;
+    left: 38px;
+    border-radius: 80px;
+    box-shadow: 
+    inset 1px 1px 0px 0px #e2f3ff,
+    inset -1px -1px 0px 0px #000000,
+    inset 0px 0px 0px 8px #454a4e,
+    inset 4px 4px 4px 10px #5e676f,
+    -5px 0px 6px #4c4f51,
+    -10px 0px 6px #6e7377,
+    4px 0px 6px #515151,
+    0px -4px 6px #e3ecf3,
+    0px 4px 6px #e3ecf3,
+    0px 12px 6px #a1a1a1;
+}
+
+
+
+.camera-1,
+.camera-2,
+.camera-3{
+    position: absolute;  
+    width:142px;
+    height: 142px;
+    top :13px;
+    left: 13px;
+    border-radius: 50%;
+    background-image: linear-gradient(to bottom, #787c80,#767765,#787c80);
+    box-shadow: 
+    inset 0px -1px 0px 0px #000000,
+    inset 0px -2px 0px 1px #000000,
+    0px 6px 4px #000000 ;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.camera-1::after,
+.camera-2::after,
+.camera-3::after{
+    position: absolute;
+    content:'';
+    display: block;
+    background-color: #010101;
+    width: 120px;
+    height: 120px;
+    margin-top: -2px;
+    border-radius: 50%;
+    box-shadow: 
+    inset 0px 2px 0px 0px #010101,
+    inset 0px 3px 2px 1px #9da7b1,
+    inset 0px 0px 0px 8px #010810,
+    inset 0px 2px 0px 8px #303940,
+    inset 0px -2px 0px 7px #303940,;
+}
+
+.camera-2{
+    left: auto;
+    right: 19px;
+    top:96px; 
+}
+
+.camera-3{
+    top: auto;
+    bottom: 10px;
+}
+
+.camera-1 .lens,
+.camera-2 .lens,
+.camera-3 .lens{
+    position: relative;
+    z-index: 10;
+    border-radius: 50%;
+    background-image: linear-gradient(to bottom,#041328,#162631,#041328);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.camera-1 .lens{
+    width: 48px;
+    height: 48px;
+}
+
+
+.camera-1 .lens::before{
+    content:'';
+    display: block;
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 3px solid #000b15;
+    background-image: linear-gradient(to right,transparent 0%, transparent #34a6cb 35%,transparent 45%,transparent 55% ,#34a6cb 70%,transparent 80%);
+    box-shadow: 
+    inset 0px 1px 2px 1px #0a216d,
+    inset 0px -1px 2px 1px #0a216d;
+}
+
+.camera-2 .lens{
+    width: 84px;
+    height: 84px;
+}
+.camera-2 .lens::before{
+    content: '';
+    display: block;
+    position: absolute;
+    width : 40px;
+    height: 40px;
+    border-radius: 50%;
+    border-radius: 3px soild #000b15;
+    background-image: linear-gradient(to right,transparent 0%, transparent #34a6cb 35%,transparent 45%,transparent 55% ,#34a6cb 70%,transparent 80%);
+    box-shadow: 
+    inset 0px 0px 0px 4px #112d38,
+    inset 0px 0px 3px 6px #087ff5;
+
+}
+
+.camera-3 .lens{
+    width: 62px;
+    height: 62px;
+}
+
+.camera-3 .lens::before{
+    content: '';
+    display: block;
+    position: absolute;
+    width : 40px;
+    height: 40px;
+    border-radius: 50%;
+    border-radius: 3px soild #000b15;
+    background-image: linear-gradient(to right,transparent 0%, transparent #34a6cb 35%,transparent 45%,transparent 55% ,#34a6cb 70%,transparent 80%);
+    box-shadow: 
+    inset 0px 0px 0px 4px #112d38,
+    inset 0px 0px 3px 6px #087ff5;
+}
+
+.flash{
+    background-image: linear-gradient(135deg,#fff,#bbd0e3);
+    position: absolute;
+    top: 18px;
+    right: 60px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    box-shadow: 
+    inset 0px 0px 0px 2px #a9bfd6,
+    inset 0px 0px 0px 2px #b9bec1,
+    inset 0px 0px 0px 2px #ced2d5,
+    inset 0px 0px 0px 2px #dfd6cf,
+    0px 6px 4px #788a9a;
+}
+
+
+.depth{
+    background-color: #000000;
+    position: absolute;
+    bottom: 16px;
+    right: 60px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    box-shadow: inset 0px 0px 0px 1px #ffffff;
+}
+
+.hole{
+    width: 9px;
+    height: 9px;
+    background-color: #1f3e5b;
+    position: absolute;
+    left:289px;
+    top:289px;
+    border-radius: 50%;
+    box-shadow: 
+    inset 0px 0px 0px 1px #bfd2e1,
+    0px 2px 0px 0px #486279;
+}
+
+.control-left{
+    position: absolute;
+    background-color: #000000;
+    width: 6px;
+    height: 95px;
+    bottom: 0;
+    left: -6px;
+    box-shadow: 
+    inset 0px 0px 0px 1px #283651,
+    inset 0px 6px 0px 0px #eff4ff,
+    inset 0px 10px 0px 0px #010103 ;
+    border-top-left-radius: 2px;
+}
+
+.control-right{
+    position: absolute;
+    background-color: #000000;
+    width: 6px;
+    height: 100px;
+    bottom: 30px;
+    right: -6px;
+    box-shadow: 
+    inset 0px 0px 0px 1px #283651,
+    inset 0px 6px 0px 0px #eff4ff,
+    inset 0px 10px 0px 0px #010103,
+    inset 0px -6px 0px 0px #eff4ff ;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.control-right::after{
+    content:'';
+    display: block;
+    position: absolute;
+    background-color: #000000;
+    width: 6px;
+    height: 50px;
+    bottom: 150px;
+    box-shadow: 
+    inset 0px 0px 0px 1px #283651,
+    inset 0px 6px 0px 0px #eff4ff,
+    inset 0px 10px 0px 0px #010103,
+    inset 0px -6px 0px 0px #eff4ff ;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+#drawing{
+    width: 674px;
+    height: 492px;  
+}
