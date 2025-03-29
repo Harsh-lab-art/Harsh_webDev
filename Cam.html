@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="Camera.css">
+    <title>Interactive iPhone Model</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #bca5a5;
+            flex-direction: column;
+        }
+        .flash {
+            position: absolute;
+            top: 18px;
+            right: 60px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #fff;
+            box-shadow: 0px 0px 20px 5px rgba(255,255,255,0);
+            transition: box-shadow 0.3s;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            border: none;
+            background: #333;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div id="iphone">
+        <div class="camera">
+            <div class="camera-1">
+                <div class="lens"></div>
+            </div>
+            <div class="camera-2">
+                <div class="lens"></div>
+            </div>
+            <div class="camera-3">
+                <div class="lens"></div>
+            </div>
+            <div class="flash" id="flash"></div>
+            <div class="depth"></div>
+            <div class="hole"></div>
+        </div>
+        <div class="controls-left"></div>
+        <div class="controls-right"></div>
+    </div>
+    <div class="buttons">
+        <button class="btn" onclick="toggleFlash()">Toggle Flash</button>
+    </div>
+    <script>
+        function toggleFlash() {
+            let flash = document.getElementById("flash");
+            if (flash.style.boxShadow === "0px 0px 20px 5px rgba(255,255,255,1)") {
+                flash.style.boxShadow = "0px 0px 20px 5px rgba(255,255,255,0)";
+            } else {
+                flash.style.boxShadow = "0px 0px 20px 5px rgba(255,255,255,1)";
+            }
+        }
+    </script>
+</body>
+</html>
