@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>College Timetable Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --text: #000;
+      --table-head: #3f51b5;
+      --table-text: #fff;
+      --hover-bg: #d0e9ff;
+    }
+    body.dark {
+      --bg: #121212;
+      --text: #eee;
+      --table-head: #1f1f1f;
+      --table-text: #0ff;
+      --hover-bg: #2a3b4c;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { text-align: center; }
+    select, button, input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      position: relative;
+    }
+    td:hover {
+      background-color: var(--hover-bg);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    th {
+      background-color: var(--table-head);
+      color: var(--table-text);
+    }
+    .lunch { background-color: #ffeb3b; }
+    .sac { background-color: #c8e6c9; }
+    .lab { background-color: #ffe0b2; }
+    .tp { background-color: #d1c4e9; }
+    .conflict {
+      background-color: #ffcccc !important;
+    }
+    .conflict::after {
+      content: "\2716";
+      color: red;
+      font-size: 18px;
+      position: absolute;
+      top: 5px;
+      right: 5px;
+    }
+    #editorModal, #overlay {
+      display: none;
+      position: fixed;
+      z-index: 999;
+    }
+    #editorModal {
+      top: 20%; left: 35%; width: 30%; background: white; padding: 20px; border: 2px solid #333;
+    }
+    #overlay {
+      top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);
+    }
+    #controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 10px; }
+
+    /* Print Styling */
+    @media print {
+      body {
+        background: white;
+        color: black;
+        padding: 0;
+      }
+      #controls, #editorModal, #overlay {
+        display: none !important;
+      }
+      table {
+        page-break-inside: avoid;
+        font-size: 12px;
+      }
+      th, td {
+        border: 1px solid #000;
+        padding: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>College Timetable Generator</h1>
+
+  <div id="controls">
+    <label for="classSelector">Select Class:</label>
+    <select id="classSelector"></select>
+    <button id="saveBtn">Save</button>
+    <button id="darkToggle">Toggle Dark Mode</button>
+    <input type="text" id="searchInput" placeholder="Search Subject/Faculty"/>
+    <button id="exportBtn">Export to Excel</button>
+    <button id="exportPdfBtn">Export to PDF</button>
+    <button id="printBtn">Print</button>
+  </div>
+
+  <div id="overlay"></div>
+  <div id="editorModal">
+    <h3>Edit Slot</h3>
+    <label>Subject:</label><br />
+    <input type="text" id="subjectInput" /><br /><br />
+    <label>Faculty:</label><br />
+    <input type="text" id="facultyInput" /><br /><br />
+    <button onclick="saveEdit()">Save</button>
+    <button onclick="closeModal()">Cancel</button>
+  </div>
+
+  <table id="timetable"></table>
+
+  <script>
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+    const times = [
+      "8:30 - 9:20", "9:20 - 10:10", "10:10 - 11:00", "11:00 - 11:50",
+      "11:50 - 12:30", "12:30 - 1:20", "1:20 - 2:10", "2:10 - 3:00"
+    ];
+
+    const timetable = document.getElementById("timetable");
+    const classSelector = document.getElementById("classSelector");
+    const saveBtn = document.getElementById("saveBtn");
+    const searchInput = document.getElementById("searchInput");
+    const exportBtn = document.getElementById("exportBtn");
+    const darkToggle = document.getElementById("darkToggle");
+    const exportPdfBtn = document.getElementById("exportPdfBtn");
+    const printBtn = document.getElementById("printBtn");
+
+    let timetableData = {};
+    let selectedClass = "CS-A";
+    let editing = { day: null, time: null };
+
+    const overlay = document.getElementById("overlay");
+    const modal = document.getElementById("editorModal");
+    const subjectInput = document.getElementById("subjectInput");
+    const facultyInput = document.getElementById("facultyInput");
+
+    function init() {
+      const defaultClasses = [
+        "CS-A", "CS-B", "CS-C", "CS-D", "CS-E", "CS-F", "CSBS IV",
+        "CS-A V", "CS-B V", "CS-C V", "CS-D V", "CSBS V",
+        "CS-A VI", "CS-B VI", "CS-C VI", "CS-D VI", "CSBS VI",
+        "CS-A VII", "CS-B VII", "CS-C VII", "CS-D VII", "CSBS VII",
+        "CS-A VIII", "CS-B VIII", "CS-C VIII", "CS-D VIII", "CSBS VIII"
+      ];
+      defaultClasses.forEach(cls => {
+        timetableData[cls] = {};
+        days.forEach(day => {
+          timetableData[cls][day] = {};
+          times.forEach(time => {
+            timetableData[cls][day][time] =
+              time === "11:50 - 12:30" ? "Lunch" :
+              (day === "Friday" && (time === "1:20 - 2:10" || time === "2:10 - 3:00")) ? "SAC ACTIVITY" : "";
+          });
+        });
+      });
+
+      classSelector.innerHTML = '';
+      Object.keys(timetableData).forEach(cls => {
+        classSelector.innerHTML += `<option value="${cls}">${cls}</option>`;
+      });
+    }
+
+    // Merge default timetable with saved data so new classes don't disappear
+    function mergeDefaultWithSaved(defaultData, savedData) {
+      for (const cls in defaultData) {
+        if (!savedData[cls]) {
+          savedData[cls] = defaultData[cls];
+        } else {
+          for (const day in defaultData[cls]) {
+            if (!savedData[cls][day]) {
+              savedData[cls][day] = defaultData[cls][day];
+            } else {
+              for (const time in defaultData[cls][day]) {
+                if (!(time in savedData[cls][day])) {
+                  savedData[cls][day][time] = defaultData[cls][day][time];
+                }
+              }
+            }
+          }
+        }
+      }
+      return savedData;
+    }
+
+    function renderTable() {
+      selectedClass = classSelector.value;
+      const data = timetableData[selectedClass];
+      const query = searchInput.value.toLowerCase();
+
+      let html = `<tr><th>Day / Time</th>`;
+      times.forEach(t => html += `<th>${t}</th>`);
+      html += `</tr>`;
+
+      days.forEach(day => {
+        html += `<tr><th>${day}</th>`;
+        times.forEach(time => {
+          const val = data[day][time];
+          let cls = "";
+
+          if (val === "Lunch") cls = "lunch";
+          else if (val === "SAC ACTIVITY") cls = "sac";
+          else if (val.toLowerCase().includes("lab")) cls = "lab";
+          else if (val.toLowerCase().includes("t&p")) cls = "tp";
+
+          // Highlight if conflict (faculty conflict)
+          const faculty = val.includes("(") ? val.split("(")[1]?.replace(")", "").trim() : "";
+          if (faculty) {
+            const conflict = Object.entries(timetableData).some(([clsKey, clsData]) => {
+              return clsKey !== selectedClass && clsData[day][time]?.includes(`(${faculty})`);
+            });
+            if (conflict) cls += " conflict";
+          }
+
+          // Search filtering
+          if (query && !val.toLowerCase().includes(query)) {
+            html += `<td class="${cls}" style="opacity: 0.3" draggable="true"
+              ondragstart="handleDragStart(event, '${day}', '${time}')"
+              ondragover="event.preventDefault()"
+              ondrop="handleDrop(event, '${day}', '${time}')"
+              onclick="editSlot('${day}', '${time}')">${val}</td>`;
+          } else {
+            html += `<td class="${cls}" draggable="true"
+              ondragstart="handleDragStart(event, '${day}', '${time}')"
+              ondragover="event.preventDefault()"
+              ondrop="handleDrop(event, '${day}', '${time}')"
+              onclick="editSlot('${day}', '${time}')">${val}</td>`;
+          }
+        });
+        html += `</tr>`;
+      });
+
+      timetable.innerHTML = html;
+    }
+
+    function editSlot(day, time) {
+      if (["Lunch", "SAC ACTIVITY"].includes(timetableData[selectedClass][day][time])) return;
+      editing = { day, time };
+      const val = timetableData[selectedClass][day][time] || "";
+      const [subject = "", faculty = ""] = val.split(" (");
+
+      subjectInput.value = subject.trim();
+      facultyInput.value = faculty.replace(")", "").trim() || "";
+      modal.style.display = "block";
+      overlay.style.display = "block";
+    }
+
+    function closeModal() {
+      modal.style.display = "none";
+      overlay.style.display = "none";
+    }
+
+    function saveEdit() {
+      const sub = subjectInput.value.trim();
+      const fac = facultyInput.value.trim();
+
+      // Conflict check
+      const conflictClasses = Object.keys(timetableData).filter(cls => {
+        if (cls === selectedClass) return false;
+        const existingVal = timetableData[cls][editing.day][editing.time];
+        return existingVal && existingVal.includes(`(${fac})`);
+      });
+
+      if (conflictClasses.length > 0) {
+        alert(`Conflict detected! ${fac} already has a class at this time in: ${conflictClasses.join(", ")}`);
+      }
+
+      timetableData[selectedClass][editing.day][editing.time] = sub ? `${sub} (${fac})` : "";
+      closeModal();
+      renderTable();
+    }
+
+    let dragData = { day: null, time: null };
+
+    function handleDragStart(event, day, time) {
+      dragData = { day, time };
+    }
+
+    function handleDrop(event, targetDay, targetTime) {
+      const sourceVal = timetableData[selectedClass][dragData.day][dragData.time];
+      const targetVal = timetableData[selectedClass][targetDay][targetTime];
+
+      if (["Lunch", "SAC ACTIVITY"].includes(targetVal)) return;
+
+      const faculty = sourceVal.includes("(") ? sourceVal.split("(")[1]?.replace(")", "").trim() : "";
+      const conflict = Object.entries(timetableData).some(([clsKey, clsData]) => {
+        return clsKey !== selectedClass && clsData[targetDay][targetTime]?.includes(`(${faculty})`);
+      });
+      if (conflict) {
+        alert(`Conflict! ${faculty} already has a class at that time.`);
+        return;
+      }
+
+      timetableData[selectedClass][dragData.day][dragData.time] = targetVal;
+      timetableData[selectedClass][targetDay][targetTime] = sourceVal;
+
+      renderTable();
+    }
+
+    classSelector.onchange = renderTable;
+    searchInput.oninput = renderTable;
+
+    saveBtn.onclick = () => {
+      localStorage.setItem('timetableData', JSON.stringify(timetableData));
+      alert("Saved successfully!");
+    };
+
+    darkToggle.onclick = () => document.body.classList.toggle("dark");
+
+    exportBtn.onclick = () => {
+      const wb = XLSX.utils.book_new();
+      const data = timetableData[selectedClass];
+      const sheet = [
+        ["Day / Time", ...times],
+        ...days.map(day => [day, ...times.map(t => data[day][t] || "")])
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(sheet);
+      XLSX.utils.book_append_sheet(wb, ws, selectedClass);
+      XLSX.writeFile(wb, `${selectedClass}_Timetable.xlsx`);
+    };
+
+    exportPdfBtn.onclick = () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('landscape');
+      doc.setFontSize(10);
+      doc.text(`Timetable for ${selectedClass}`, 10, 10);
+
+      const data = timetableData[selectedClass];
+      const colWidths = [30, 35, 35, 35, 35, 35, 35, 35, 35];
+
+      // Prepare headers and rows for jsPDF autotable
+      const headers = [["Day / Time", ...times]];
+      const rows = days.map(day => [day, ...times.map(t => data[day][t] || "")]);
+
+      doc.autoTable({
+        head: headers,
+        body: rows,
+        startY: 15,
+        theme: 'grid',
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [63,81,181] },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 35 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 35 },
+          4: { cellWidth: 35 },
+          5: { cellWidth: 35 },
+          6: { cellWidth: 35 },
+          7: { cellWidth: 35 },
+          8: { cellWidth: 35 },
+        }
+      });
+
+      doc.save(`${selectedClass}_Timetable.pdf`);
+    };
+
+    printBtn.onclick = () => {
+      window.print();
+    };
+
+    window.onload = () => {
+      // Initialize default classes timetable structure
+      const defaultClasses = [
+        "CS-A", "CS-B", "CS-C", "CS-D", "CS-E", "CS-F", "CSBS IV",
+        "CS-A V", "CS-B V", "CS-C V", "CS-D V", "CSBS V",
+        "CS-A VI", "CS-B VI", "CS-C VI", "CS-D VI", "CSBS VI",
+        "CS-A VII", "CS-B VII", "CS-C VII", "CS-D VII", "CSBS VII",
+        "CS-A VIII", "CS-B VIII", "CS-C VIII", "CS-D VIII", "CSBS VIII"
+      ];
+      const defaultData = {};
+      defaultClasses.forEach(cls => {
+        defaultData[cls] = {};
+        days.forEach(day => {
+          defaultData[cls][day] = {};
+          times.forEach(time => {
+            defaultData[cls][day][time] =
+              time === "11:50 - 12:30" ? "Lunch" :
+              (day === "Friday" && (time === "1:20 - 2:10" || time === "2:10 - 3:00")) ? "SAC ACTIVITY" : "";
+          });
+        });
+      });
+
+      const stored = localStorage.getItem('timetableData');
+      if (stored) {
+        try {
+          timetableData = mergeDefaultWithSaved(defaultData, JSON.parse(stored));
+        } catch {
+          timetableData = defaultData;
+        }
+      } else {
+        timetableData = defaultData;
+      }
+
+      classSelector.innerHTML = '';
+      Object.keys(timetableData).forEach(cls => {
+        classSelector.innerHTML += `<option value="${cls}">${cls}</option>`;
+      });
+
+      renderTable();
+    };
+  </script>
+
+  <!-- jsPDF autotable plugin from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+</body>
+</html>
